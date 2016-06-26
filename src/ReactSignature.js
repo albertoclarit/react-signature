@@ -113,6 +113,9 @@ var ReactSignature = React.createClass({
   handleMouseDown: function(e) {
     mouseButtonDown = true;
     this.strokeBegin(e);
+	  this.setState({
+		  edited:true
+	  });
   },
 
   handleMouseMove: function(e) {
@@ -123,9 +126,7 @@ var ReactSignature = React.createClass({
 
   handleMouseUp: function(e) {
     mouseButtonDown = false;
-	  this.setState({
-		  edited:true
-	  });
+	 
     this.strokeEnd(e);
   },
 
