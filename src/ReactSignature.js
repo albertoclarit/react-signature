@@ -234,6 +234,9 @@ var ReactSignature = React.createClass({
     this.lastWidth = (this.minWidth + this.maxWidth) / 2;
     this.isEmpty = true;
     context.fillStyle = penColor;
+	  this.setState({
+		  edited:false
+	  });
   },
   drawPoint: function (x, y, size) {
     context.moveTo(x, y);
