@@ -22,14 +22,75 @@ var ReactSignature = React.createClass({
       height: 300
     }
   },
+  getInitialState: function () {
+	  return {
+	    edited:false
+	  }
+  },	
   componentDidMount: function() {
     canvas = this.refs.canvas;
     context = canvas.getContext('2d');
   },
+	
+  removeBlanks:function(){
+	  var imgWidth = context.canvas.width;
+	  var imgHeight = context.canvas.height;
+	  var imageData = context.getImageData(0, 0, imgWidth, imgHeight),
+		  data = imageData.data,
+		  getAlpha = function(x, y) {
+			  return data[(imgWidth*y + x) * 4 + 3]
+		  },
+		  scanY = function (fromTop) {
+			  var offset = fromTop ? 1 : -1;
 
+			  // loop through each row
+			  for(var y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
+
+				  // loop through each column
+				  for(var x = 0; x < imgWidth; x++) {
+					  if (getAlpha(x, y)) {
+						  return y;
+					  }
+				  }
+			  }
+			  return null; // all image is white
+		  },
+		  scanX = function (fromLeft) {
+			  var offset = fromLeft? 1 : -1;
+
+			  // loop through each column
+			  for(var x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
+
+				  // loop through each row
+				  for(var y = 0; y < imgHeight; y++) {
+					  if (getAlpha(x, y)) {
+						  return x;
+					  }
+				  }
+			  }
+			  return null; // all image is white
+		  };
+
+	  var cropTop = scanY(true),
+		  cropBottom = scanY(false),
+		  cropLeft = scanX(true),
+		  cropRight = scanX(false);
+
+	  var relevantData = context.getImageData(cropLeft, cropTop, cropRight-cropLeft, cropBottom-cropTop);
+	  canvas.width = cropRight-cropLeft;
+	  canvas.height = cropBottom-cropTop;
+	  context.clearRect(0, 0, cropRight-cropLeft, cropBottom-cropTop);
+	  context.putImageData(relevantData, 0, 0);
+	  
+		
+  },
   handleClear: function() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     this.reset();
+  },
+  isEdited : function(){
+	
+	  return this.state.edited ? true:false;
   },
 
   toDataURL: function() {
